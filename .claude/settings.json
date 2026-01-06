@@ -1,0 +1,10 @@
+{
+  "extraKnownMarketplaces": {
+    "smart-docs": {
+      "source": {
+        "source": "directory",
+        "path": "plugins"
+      }
+    }
+  }
+}

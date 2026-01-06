@@ -1,0 +1,9 @@
+{
+  "name": "smart-docs",
+  "version": "1.0.0",
+  "description": "Auto-loads documentation into AI agent context based on frontmatter configuration",
+  "author": {
+    "name": "Hunter Hopkins"
+  },
+  "keywords": ["documentation", "auto-load", "context", "markdown"]
+}

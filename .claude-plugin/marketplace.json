@@ -1,0 +1,17 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "smart-docs",
+  "version": "1.0.0",
+  "description": "Smart Docs Plugins",
+  "owner": {
+    "name": "Hunter Hopkins"
+  },
+  "plugins": [
+    {
+      "name": "smart-docs",
+      "description": "Smart Docs Plugin",
+      "source": "./plugins/smart-docs",
+      "category": "documentation"
+    }
+  ]
+}
