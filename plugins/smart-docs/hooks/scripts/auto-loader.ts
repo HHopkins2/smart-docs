@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 
 import { readdir, readFile } from "node:fs/promises";
-import { join, relative } from "node:path";
+import path, { join, relative } from "node:path";
 
 interface Frontmatter {
   title?: string;
@@ -113,19 +113,32 @@ async function loadDocFile(filePath: string, basePath: string): Promise<DocFile 
 async function main() {
   const docsPath = process.env.SMART_DOCS_PATH;
 
+
   if (!docsPath) {
     // Silent exit if not configured - this is expected in non-smart-docs projects
     process.exit(0);
   }
+  const resolvedDocsPath = path.resolve(process.cwd(), docsPath);
+
+  // Output must be valid JSON with this structure
+  // console.log(JSON.stringify({
+  //   hookSpecificOutput: {
+  //     hookEventName: "SessionStart",
+  //     additionalContext: `The RESOLVED docs path is ${resolvedDocsPath}`
+  //   }
+  // }));
+
 
   // Find all markdown files
-  const markdownFiles = await findMarkdownFiles(docsPath);
+  const markdownFiles = await findMarkdownFiles(resolvedDocsPath);
 
   // Load and filter auto-load files
   const docFiles: DocFile[] = [];
 
+  let addedContext = "";
+
   for (const filePath of markdownFiles) {
-    const doc = await loadDocFile(filePath, docsPath);
+    const doc = await loadDocFile(filePath, resolvedDocsPath);
     if (doc && doc.frontmatter.autoLoad === true) {
       docFiles.push(doc);
     }
@@ -145,26 +158,38 @@ async function main() {
   }
 
   // Output auto-loaded documentation
-  console.log("<auto-loaded-documentation>");
-  console.log("The following documentation has been automatically loaded from the project's docs folder.");
-  console.log(`Source: ${docsPath}\n`);
+  addedContext += "<auto-loaded-documentation> \n";
+  addedContext += "The following documentation has been automatically loaded from the project's docs folder. \n"
+  addedContext += `Source: ${docsPath}\n`;
 
   for (const doc of docFiles) {
     const title = doc.frontmatter.title || doc.relativePath;
     const role = doc.frontmatter.agentRole || "reference";
 
-    console.log(`## ${title}`);
-    console.log(`<!-- path: ${doc.relativePath} | role: ${role} -->`);
+    addedContext += `## ${title}\n`;
+    addedContext += `<!-- path: ${doc.relativePath} | role: ${role} -->\n`;
 
     if (doc.frontmatter.description) {
-      console.log(`> ${doc.frontmatter.description}\n`);
+      addedContext += `> ${doc.frontmatter.description}\n`;
     }
 
-    console.log(doc.content);
-    console.log("\n---\n");
+    addedContext += doc.content;
+    addedContext += "\n---\n";
   }
 
-  console.log("</auto-loaded-documentation>");
+  addedContext += "</auto-loaded-documentation>";
+
+
+  if (addedContext.length > 0) {
+
+    console.log(JSON.stringify({
+      hookSpecificOutput: {
+        hookEventName: "SessionStart",
+        additionalContext: addedContext
+      }
+    }));
+
+  }
 }
 
 main().catch(() => process.exit(1));

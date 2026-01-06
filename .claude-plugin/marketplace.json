@@ -1,6 +1,6 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
-  "name": "smart-docs",
+  "name": "smart-docs-mp",
   "version": "1.0.0",
   "description": "Smart Docs Plugins",
   "owner": {
@@ -11,7 +11,7 @@
       "name": "smart-docs",
       "description": "Smart Docs Plugin",
       "source": "./plugins/smart-docs",
-      "category": "documentation"
+      "category": "development"
     }
   ]
 }

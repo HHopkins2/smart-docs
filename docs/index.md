@@ -1,6 +1,7 @@
 ---
 title: Smart Docs
 description: Documentation folder manager with real-time editing
+autoLoad : true
 ---
 
 # Smart Docs

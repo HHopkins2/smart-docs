@@ -1,10 +1,16 @@
 {
   "extraKnownMarketplaces": {
-    "smart-docs": {
+    "smart-docs-mp": {
       "source": {
         "source": "directory",
         "path": "plugins"
       }
     }
+  },
+  "enabledPlugins": {
+    "smart-docs@local-plugins": true
+  }, 
+  "env": {
+    "SMART_DOCS_PATH" : "./docs"
   }
 }

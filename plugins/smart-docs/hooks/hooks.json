@@ -1,13 +1,16 @@
 {
-  "SessionStart": [
-    {
-      "hooks": [
-        {
-          "type": "command",
-          "command": "bun run ${CLAUDE_PLUGIN_ROOT}/hooks/scripts/auto-loader.ts",
-          "timeout": 10000
-        }
-      ]
-    }
-  ]
+  "description": "Smart Docs Plugin Hooks",
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bun run ${CLAUDE_PLUGIN_ROOT}/hooks/scripts/auto-loader.ts",
+            "timeout": 10000
+          }
+        ]
+      }
+    ]
+  }
 }
