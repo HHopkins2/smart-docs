@@ -184,6 +184,13 @@ export default function DocsTab() {
     }));
   };
 
+  const updateFrontmatterBool = (key: string, value: boolean) => {
+    setEditFrontmatter(prev => ({
+      ...prev,
+      [key]: value,
+    }));
+  };
+
   const addFrontmatterField = () => {
     const key = prompt('Enter field name:');
     if (key) {
@@ -315,9 +322,33 @@ export default function DocsTab() {
                         + Add field
                       </button>
                     </div>
-                    {editFrontmatter && Object.keys(editFrontmatter).length > 0 ? (
+
+                    {/* autoLoad toggle */}
+                    <div className="flex items-center justify-between py-2 border-b border-gray-200 dark:border-gray-700 mb-3">
+                      <div>
+                        <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Auto Load</label>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">Include in Claude Code context at session start</p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => updateFrontmatterBool('autoLoad', !editFrontmatter?.autoLoad)}
+                        className={`relative w-11 h-6 rounded-full transition-colors ${
+                          editFrontmatter?.autoLoad ? 'bg-blue-500' : 'bg-gray-300 dark:bg-gray-600'
+                        }`}
+                        role="switch"
+                        aria-checked={!!editFrontmatter?.autoLoad}
+                      >
+                        <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${
+                          editFrontmatter?.autoLoad ? 'translate-x-5' : ''
+                        }`} />
+                      </button>
+                    </div>
+
+                    {editFrontmatter && Object.keys(editFrontmatter).filter(k => k !== 'autoLoad').length > 0 ? (
                       <div className="space-y-2">
-                        {Object.entries(editFrontmatter).map(([key, value]) => (
+                        {Object.entries(editFrontmatter)
+                          .filter(([key]) => key !== 'autoLoad')
+                          .map(([key, value]) => (
                           <div key={key} className="flex items-center gap-2">
                             <label className="w-24 text-sm font-medium text-gray-600 dark:text-gray-400">
                               {key}:
@@ -339,7 +370,7 @@ export default function DocsTab() {
                         ))}
                       </div>
                     ) : (
-                      <p className="text-sm text-gray-500">No frontmatter. Click "Add field" to add metadata.</p>
+                      <p className="text-sm text-gray-500">No additional frontmatter. Click "Add field" to add metadata.</p>
                     )}
                   </div>
 
@@ -358,9 +389,18 @@ export default function DocsTab() {
                 <div className="prose dark:prose-invert max-w-none">
                   {content.frontmatter && (
                     <div className="mb-4 p-4 bg-gray-100 dark:bg-gray-800 rounded">
-                      {content.frontmatter.title && (
-                        <h1 className="mt-0">{content.frontmatter.title}</h1>
-                      )}
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1">
+                          {content.frontmatter.title && (
+                            <h1 className="mt-0">{content.frontmatter.title}</h1>
+                          )}
+                        </div>
+                        {content.frontmatter.autoLoad && (
+                          <span className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 px-2 py-1 rounded whitespace-nowrap">
+                            Auto Load
+                          </span>
+                        )}
+                      </div>
                       {content.frontmatter.description && (
                         <p className="text-gray-600 dark:text-gray-400">
                           {content.frontmatter.description}
