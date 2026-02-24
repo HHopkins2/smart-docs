@@ -12,7 +12,7 @@ Smart Docs already includes a Claude plugin hook that:
 - reads frontmatter (`autoLoad`, `autoLoadPriority`, `agentRole`),
 - injects selected docs into session-start context.
 
-This is configurable today through frontmatter.
+This is configurable today through frontmatter and now supports optional repo-level defaults via `smart-docs.config.json`.
 
 ## Key point
 There is no full MCP server contract in Smart Docs yet.
@@ -24,32 +24,50 @@ This doc defines how to evolve safely:
 ## Context policy design
 
 ### Modes
-- **minimal**: only lexicon + core operating docs
-- **standard**: minimal + active project/workflow docs
-- **deep**: standard + rich references/examples
+- **minimal**: only the most directive docs (`instructions` role by default), low doc cap
+- **standard**: balanced default for everyday sessions (`instructions` + `reference`)
+- **deep**: broad preload for research/refactoring sessions (`instructions` + `reference` + `example`)
+
+### Mode defaults (proposal)
+
+| Mode | Default allowed roles | Default max documents | Typical use |
+|---|---|---:|---|
+| `minimal` | `instructions` | 5 | fast/cheap sessions, strict guidance only |
+| `standard` | `instructions`, `reference` | 20 | normal product work |
+| `deep` | `instructions`, `reference`, `example` | 50 | heavy implementation/migration planning |
 
 ### Priority rules
-- auto-load must be bounded by a max context budget
+- auto-load must remain bounded (`maxDocuments`, and later token budget)
 - `autoLoadPriority` sorts within mode
 - high-churn docs should default to non-autoload
+- deny-paths should exclude archives/noisy history by default in larger repos
 
 ## Configurability
 Recommended config surface:
 - repo config file (`smart-docs.config.json`)
-- optional per-project overrides
-- frontmatter still controls per-doc opt-in
+- optional per-project overrides in future
+- frontmatter remains the per-doc opt-in switch
 
-Example:
+### Example config
 ```json
 {
   "agentContext": {
     "mode": "standard",
-    "maxTokens": 12000,
+    "maxDocuments": 20,
     "allowRoles": ["instructions", "reference"],
     "denyPaths": ["archive/**"]
   }
 }
 ```
+
+### Resolution order
+1. Start with mode defaults.
+2. Apply `allowRoles` override (if valid and non-empty).
+3. Apply `denyPaths` override.
+4. Apply `maxDocuments` override (must be positive).
+5. Apply per-file frontmatter (`autoLoad: true`, plus priority/role metadata).
+
+This preserves safe behavior when config is missing or malformed.
 
 ## MCP contract (v1 target)
 
