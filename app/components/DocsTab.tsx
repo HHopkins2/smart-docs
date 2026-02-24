@@ -10,6 +10,7 @@ const SyntaxHighlighter = SyntaxHighlighterBase as any;
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import remarkGfm from 'remark-gfm';
 import type { FileTreeNode, MarkdownContent, Frontmatter } from '@/types';
+import { classifyVaultObject } from '@/types/vault';
 import Mermaid from './Mermaid';
 import Toast from './Toast';
 import ConfirmDialog from './ConfirmDialog';
@@ -36,6 +37,20 @@ export default function DocsTab() {
 
   // Toast state
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+
+  const objectClass = content && selectedFile
+    ? classifyVaultObject(selectedFile, content.frontmatter)
+    : null;
+
+  const objectBadgeClass = objectClass
+    ? {
+      neutral: 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200',
+      blue: 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300',
+      green: 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300',
+      amber: 'bg-amber-100 dark:bg-amber-900 text-amber-700 dark:text-amber-300',
+      purple: 'bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300',
+    }[objectClass.tone]
+    : '';
 
   useEffect(() => {
     fetchTree();
@@ -395,11 +410,21 @@ export default function DocsTab() {
                             <h1 className="mt-0">{content.frontmatter.title}</h1>
                           )}
                         </div>
-                        {content.frontmatter.autoLoad && (
-                          <span className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 px-2 py-1 rounded whitespace-nowrap">
-                            Auto Load
-                          </span>
-                        )}
+                        <div className="flex items-center gap-2">
+                          {objectClass && (
+                            <span
+                              className={`text-xs px-2 py-1 rounded whitespace-nowrap ${objectBadgeClass}`}
+                              title={`Vault object type inferred from ${objectClass.source}`}
+                            >
+                              {objectClass.label}
+                            </span>
+                          )}
+                          {content.frontmatter.autoLoad && (
+                            <span className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 px-2 py-1 rounded whitespace-nowrap">
+                              Auto Load
+                            </span>
+                          )}
+                        </div>
                       </div>
                       {content.frontmatter.description && (
                         <p className="text-gray-600 dark:text-gray-400">
