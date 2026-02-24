@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import ReactMarkdownBase from 'react-markdown';
 // Cast to any to avoid React 19 JSX type incompatibility
 const ReactMarkdown = ReactMarkdownBase as any;
@@ -436,7 +436,7 @@ export default function DocsTab() {
                   <ReactMarkdown
                     remarkPlugins={[remarkGfm]}
                     components={{
-                      code({ node, inline, className, children, ...props }: any) {
+                      code({ inline, className, children, ...props }: any) {
                         const match = /language-(\w+)/.exec(className || '');
                         const code = String(children).replace(/\n$/, '');
 

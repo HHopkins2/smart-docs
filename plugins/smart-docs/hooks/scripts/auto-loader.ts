@@ -109,15 +109,17 @@ function isAgentRole(value: unknown): value is AgentRole {
 }
 
 function matchesDenyPath(relativePath: string, denyPatterns: string[]): boolean {
+  const normalizedPath = relativePath.replace(/\\/g, "/");
+
   return denyPatterns.some((pattern) => {
-    const normalizedPattern = pattern.replace(/^\.\//, "");
+    const normalizedPattern = pattern.replace(/^\.\//, "").replace(/\\/g, "/");
 
     if (normalizedPattern.endsWith("/**")) {
-      const prefix = normalizedPattern.slice(0, -3);
-      return relativePath.startsWith(prefix);
+      const prefix = normalizedPattern.slice(0, -3).replace(/\/$/, "");
+      return normalizedPath === prefix || normalizedPath.startsWith(`${prefix}/`);
     }
 
-    return relativePath === normalizedPattern;
+    return normalizedPath === normalizedPattern;
   });
 }
 

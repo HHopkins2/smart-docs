@@ -55,7 +55,7 @@ Recommended config surface:
     "mode": "standard",
     "maxDocuments": 20,
     "allowRoles": ["instructions", "reference"],
-    "denyPaths": ["archive/**"]
+    "denyPaths": ["archives/**"]
   }
 }
 ```

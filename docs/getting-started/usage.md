@@ -77,7 +77,7 @@ When using the Smart Docs Claude plugin hook, you can add repo-level defaults in
     "mode": "standard",
     "maxDocuments": 20,
     "allowRoles": ["instructions", "reference"],
-    "denyPaths": ["archive/**"]
+    "denyPaths": ["archives/**"]
   }
 }
 ```
