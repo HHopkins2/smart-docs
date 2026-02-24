@@ -258,6 +258,133 @@ This should be distributed as:
 
 ---
 
+## Deep design: portability model and tradeoffs
+
+### Portability targets
+
+We should explicitly support three portability targets from day one:
+1. **Personal brain** (single user, local-first)
+2. **Team vault** (shared knowledge + role boundaries)
+3. **Productized vault** (multi-tenant SaaS/integration use)
+
+```mermaid
+flowchart LR
+    P1[Personal Brain] --> C[Common Contract Layer]
+    P2[Team Vault] --> C
+    P3[Productized Vault] --> C
+
+    C --> S1[Frontmatter Schema]
+    C --> S2[Workflow Contract]
+    C --> S3[MCP Tool Contract]
+    C --> S4[Index/Search Contract]
+```
+
+### What must be portable vs local
+
+| Domain | Portable (framework) | Local (instance/project) |
+|---|---|---|
+| Taxonomy | object types + semantics | tags, naming choices |
+| Metadata | required schema keys | optional custom fields |
+| Workflows | state machine + gate contract | team-specific step details |
+| Skills | wrapper interface | tool/provider bindings |
+| Retrieval | query/filter API contract | index backend tuning |
+| Governance | review cadence model | thresholds/SLO values |
+
+### Architecture options (with pros/cons)
+
+| Option | Description | Pros | Cons | Recommendation |
+|---|---|---|---|---|
+| A: Markdown-only app | UI + basic file ops | fast, simple | weak retrieval/governance | good prototype only |
+| B: Markdown + QMD + MCP | current target model | strong agent utility, portable | requires contract discipline | **best v1** |
+| C: Full DB-first CMS | relational primary store | powerful querying | high migration + lock-in | defer until scale proves need |
+
+### Why Option B is the right balance
+- Keeps source-of-truth human and git-compatible.
+- Gives agent-grade access via MCP without exposing raw mutation paths.
+- Lets us evolve indexing/retrieval independently of source content.
+
+---
+
+## Governance system design (formal definitions + controls)
+
+### Core control points
+1. **Schema gate**: all writes validated at boundary.
+2. **Classification gate**: each object must have `type` and `status`.
+3. **Linkage gate**: tasks/workflows/decisions must link to context docs.
+4. **Review gate**: stale docs routed into maintenance queue.
+5. **Release gate**: contract changes require ADR + migration note.
+
+### Contract versioning policy
+- `schema_version` in frontmatter for managed docs.
+- MCP tools versioned (`vault.v1.*`).
+- Workflow template version tags (`wf-template:v1`).
+- Breaking changes require migration guide and compatibility window.
+
+---
+
+## Failure-mode analysis (what can go wrong)
+
+```mermaid
+graph TD
+    A[Failure Classes] --> B[Schema Drift]
+    A --> C[Index Lag]
+    A --> D[Workflow Drift]
+    A --> E[Agent Unsafe Writes]
+    A --> F[Taxonomy Explosion]
+
+    B --> B1[Mitigate: CI + write validators]
+    C --> C1[Mitigate: queue metrics + alerts]
+    D --> D1[Mitigate: canonical workflow refs]
+    E --> E1[Mitigate: MCP/API write boundary]
+    F --> F1[Mitigate: lexicon governance + ADRs]
+```
+
+### Operational SLOs (proposal)
+- Index freshness: P95 < 5 minutes after write.
+- Validation pass rate: > 99% for managed writes.
+- Broken-link ratio: < 1% of managed docs.
+- Stale-doc backlog: < 10% older than review window.
+
+---
+
+## Information model detail (beyond PARA)
+
+To avoid ambiguity, treat PARA as the **knowledge placement** model, not the full operating ontology.
+
+### Full ontology buckets
+1. **Knowledge**: PARA docs, references, notes
+2. **Execution**: tasks, workflows, runs
+3. **Governance**: policies, lexicon, ADRs
+4. **Retrieval**: indexes, search configs, provenance
+
+This distinction is key for scale. PARA alone does not describe execution state or governance state.
+
+---
+
+## Migration strategy (from existing Smart Docs)
+
+### Step 0: no-break baseline
+- Keep existing docs CRUD and plugin behavior untouched.
+- Add new capabilities as additive endpoints/docs first.
+
+### Step 1: standards package
+- Add `standards/lexicon.md`, `standards/frontmatter-schema.md`, `standards/style-guide.md`, `standards/maintenance-guide.md`.
+- Add examples for each canonical object type.
+
+### Step 2: managed-object rollout
+- Introduce managed templates for task/workflow/decision/skill docs.
+- Keep generic markdown docs fully supported.
+
+### Step 3: retrieval hardening
+- Add index status surfaces and stale-content diagnostics.
+- Add ranking controls (freshness boost, type-aware boosts).
+
+### Step 4: agent safety + portability hardening
+- Enforce MCP write boundary for automated edits.
+- Publish portability pack (contracts + templates + migration docs).
+
+---
+
 ## Risks and mitigations
 
 | Risk | Impact | Mitigation |
