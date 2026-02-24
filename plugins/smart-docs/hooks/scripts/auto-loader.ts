@@ -3,13 +3,34 @@
 import { readdir, readFile } from "node:fs/promises";
 import path, { join, relative } from "node:path";
 
+type AgentRole = "reference" | "instructions" | "example";
+type ContextMode = "minimal" | "standard" | "deep";
+
 interface Frontmatter {
   title?: string;
   description?: string;
   autoLoad?: boolean;
   autoLoadPriority?: number;
-  agentRole?: "reference" | "instructions" | "example";
+  agentRole?: AgentRole;
   [key: string]: unknown;
+}
+
+interface AgentContextConfig {
+  mode?: ContextMode;
+  allowRoles?: AgentRole[];
+  denyPaths?: string[];
+  maxDocuments?: number;
+}
+
+interface SmartDocsConfig {
+  agentContext?: AgentContextConfig;
+}
+
+interface ResolvedAgentContextConfig {
+  mode: ContextMode;
+  allowRoles: Set<AgentRole>;
+  denyPaths: string[];
+  maxDocuments: number;
 }
 
 interface DocFile {
@@ -18,6 +39,24 @@ interface DocFile {
   frontmatter: Frontmatter;
   content: string;
 }
+
+const MODE_DEFAULTS: Record<ContextMode, Omit<ResolvedAgentContextConfig, "mode">> = {
+  minimal: {
+    allowRoles: new Set<AgentRole>(["instructions"]),
+    denyPaths: [],
+    maxDocuments: 5,
+  },
+  standard: {
+    allowRoles: new Set<AgentRole>(["instructions", "reference"]),
+    denyPaths: [],
+    maxDocuments: 20,
+  },
+  deep: {
+    allowRoles: new Set<AgentRole>(["instructions", "reference", "example"]),
+    denyPaths: [],
+    maxDocuments: 50,
+  },
+};
 
 /**
  * Parse YAML frontmatter from markdown content
@@ -59,6 +98,75 @@ function parseFrontmatter(content: string): { frontmatter: Frontmatter | null; b
   }
 
   return { frontmatter, body };
+}
+
+function isContextMode(value: unknown): value is ContextMode {
+  return value === "minimal" || value === "standard" || value === "deep";
+}
+
+function isAgentRole(value: unknown): value is AgentRole {
+  return value === "reference" || value === "instructions" || value === "example";
+}
+
+function matchesDenyPath(relativePath: string, denyPatterns: string[]): boolean {
+  const normalizedPath = relativePath.replace(/\\/g, "/");
+
+  return denyPatterns.some((pattern) => {
+    const normalizedPattern = pattern.replace(/^\.\//, "").replace(/\\/g, "/");
+
+    if (normalizedPattern.endsWith("/**")) {
+      const prefix = normalizedPattern.slice(0, -3).replace(/\/$/, "");
+      return normalizedPath === prefix || normalizedPath.startsWith(`${prefix}/`);
+    }
+
+    return normalizedPath === normalizedPattern;
+  });
+}
+
+async function loadAgentContextConfig(cwd: string): Promise<ResolvedAgentContextConfig> {
+  const configPath = join(cwd, "smart-docs.config.json");
+
+  let parsed: SmartDocsConfig | null = null;
+
+  try {
+    const raw = await readFile(configPath, "utf-8");
+    parsed = JSON.parse(raw) as SmartDocsConfig;
+  } catch {
+    parsed = null;
+  }
+
+  const mode: ContextMode = isContextMode(parsed?.agentContext?.mode)
+    ? parsed.agentContext.mode
+    : "standard";
+
+  const defaults = MODE_DEFAULTS[mode];
+
+  const allowRoles = new Set<AgentRole>(defaults.allowRoles);
+  const configuredRoles = parsed?.agentContext?.allowRoles;
+  if (Array.isArray(configuredRoles)) {
+    const validRoles = configuredRoles.filter(isAgentRole);
+    if (validRoles.length > 0) {
+      allowRoles.clear();
+      for (const role of validRoles) allowRoles.add(role);
+    }
+  }
+
+  const denyPaths = Array.isArray(parsed?.agentContext?.denyPaths)
+    ? parsed!.agentContext!.denyPaths!.filter((value): value is string => typeof value === "string")
+    : defaults.denyPaths;
+
+  const rawMaxDocuments = parsed?.agentContext?.maxDocuments;
+  const maxDocuments =
+    typeof rawMaxDocuments === "number" && Number.isFinite(rawMaxDocuments) && rawMaxDocuments > 0
+      ? Math.floor(rawMaxDocuments)
+      : defaults.maxDocuments;
+
+  return {
+    mode,
+    allowRoles,
+    denyPaths,
+    maxDocuments,
+  };
 }
 
 /**
@@ -113,21 +221,13 @@ async function loadDocFile(filePath: string, basePath: string): Promise<DocFile 
 async function main() {
   const docsPath = process.env.SMART_DOCS_PATH;
 
-
   if (!docsPath) {
     // Silent exit if not configured - this is expected in non-smart-docs projects
     process.exit(0);
   }
+
+  const contextConfig = await loadAgentContextConfig(process.cwd());
   const resolvedDocsPath = path.resolve(process.cwd(), docsPath);
-
-  // Output must be valid JSON with this structure
-  // console.log(JSON.stringify({
-  //   hookSpecificOutput: {
-  //     hookEventName: "SessionStart",
-  //     additionalContext: `The RESOLVED docs path is ${resolvedDocsPath}`
-  //   }
-  // }));
-
 
   // Find all markdown files
   const markdownFiles = await findMarkdownFiles(resolvedDocsPath);
@@ -139,9 +239,13 @@ async function main() {
 
   for (const filePath of markdownFiles) {
     const doc = await loadDocFile(filePath, resolvedDocsPath);
-    if (doc && doc.frontmatter.autoLoad === true) {
-      docFiles.push(doc);
-    }
+    if (!doc || doc.frontmatter.autoLoad !== true) continue;
+
+    const role = doc.frontmatter.agentRole || "reference";
+    if (!contextConfig.allowRoles.has(role)) continue;
+    if (matchesDenyPath(doc.relativePath, contextConfig.denyPaths)) continue;
+
+    docFiles.push(doc);
   }
 
   // Sort by priority (lower = first), then by path
@@ -152,17 +256,20 @@ async function main() {
     return a.relativePath.localeCompare(b.relativePath);
   });
 
+  const selectedDocs = docFiles.slice(0, contextConfig.maxDocuments);
+
   // Output nothing if no auto-load docs
-  if (docFiles.length === 0) {
+  if (selectedDocs.length === 0) {
     process.exit(0);
   }
 
   // Output auto-loaded documentation
   addedContext += "<auto-loaded-documentation> \n";
-  addedContext += "The following documentation has been automatically loaded from the project's docs folder. \n"
+  addedContext += "The following documentation has been automatically loaded from the project's docs folder. \n";
   addedContext += `Source: ${docsPath}\n`;
+  addedContext += `Context mode: ${contextConfig.mode}\n`;
 
-  for (const doc of docFiles) {
+  for (const doc of selectedDocs) {
     const title = doc.frontmatter.title || doc.relativePath;
     const role = doc.frontmatter.agentRole || "reference";
 
@@ -179,16 +286,15 @@ async function main() {
 
   addedContext += "</auto-loaded-documentation>";
 
-
   if (addedContext.length > 0) {
-
-    console.log(JSON.stringify({
-      hookSpecificOutput: {
-        hookEventName: "SessionStart",
-        additionalContext: addedContext
-      }
-    }));
-
+    console.log(
+      JSON.stringify({
+        hookSpecificOutput: {
+          hookEventName: "SessionStart",
+          additionalContext: addedContext,
+        },
+      }),
+    );
   }
 }
 

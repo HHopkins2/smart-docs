@@ -78,12 +78,42 @@ agentRole: instructions
 - API design guidelines
 - Critical setup instructions
 - Glossary of project-specific terms
+- Operational policy docs (for example, Vault-first execution rules)
 
 **Avoid auto-loading:**
 - Lengthy tutorials or walkthroughs
 - Full API reference documentation
 - Historical changelogs
 - Content that changes frequently
+
+### Default Context Operational Policy (Vault-First)
+
+If the project is Vault-managed, default context should include an `instructions` document that sets this policy:
+
+- Prefer Vault CLI or Vault MCP commands for repository mutations
+- Avoid ad-hoc file edits when an equivalent Vault command exists
+- Fall back to direct edits only when no Vault command/MCP operation is available
+
+#### Recommended Policy Snippet
+
+```markdown
+Operational instruction:
+1. Prefer Vault CLI/MCP commands over ad-hoc file mutations.
+2. If a Vault command exists for the task, use it.
+3. If no Vault command exists, explain that gap and perform the smallest safe direct edit.
+```
+
+#### Example Frontmatter for Policy Doc
+
+```yaml
+---
+title: Vault Operations Defaults
+description: Default operational instructions for Vault-managed workflows
+autoLoad: true
+autoLoadPriority: 1
+agentRole: instructions
+---
+```
 
 ## Writing for AI Agents
 

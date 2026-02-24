@@ -66,3 +66,23 @@ smart-docs ./new-docs
 # Output: 📁 Docs path doesn't exist: /path/to/new-docs
 #         Creating directory...
 ```
+
+## Optional agent context config
+
+When using the Smart Docs Claude plugin hook, you can add repo-level defaults in `smart-docs.config.json`:
+
+```json
+{
+  "agentContext": {
+    "mode": "standard",
+    "maxDocuments": 20,
+    "allowRoles": ["instructions", "reference"],
+    "denyPaths": ["archives/**"]
+  }
+}
+```
+
+Modes:
+- `minimal` → instructions only, low context budget
+- `standard` → instructions + reference (default)
+- `deep` → instructions + reference + examples
