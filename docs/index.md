@@ -36,3 +36,8 @@ The app launches at `http://localhost:4500` (or next available port).
 - [Usage](getting-started/usage.md) - CLI options and configuration
 - [Features](features/viewing.md) - Learn what you can do
 - [API Reference](api/overview.md) - REST API for integrations
+
+## Strategic Proposals
+
+- [Vault Operating System Proposal](proposals/vault-operating-system.md) - Comprehensive roadmap for PARA/task/workflow/skill driven knowledge operations
+- [Vault OS Proposal Suite](proposals/vault-os/index.md) - Detailed, split specs for product, app, plugin/MCP, metadata, and maintenance
