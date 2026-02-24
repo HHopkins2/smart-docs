@@ -16,6 +16,7 @@ This is the expanded proposal set for turning Smart Docs into an opinionated, po
 4. [Information Model + Metadata Standards](04-information-model.md)
 5. [Operating Guides + Maintenance System](05-operating-guides.md)
 6. [Vault Presets](06-vault-presets.md)
+7. [Action Surface (Web App + MCP)](07-action-surface.md)
 
 ## Reading order
 - Start at Product Definition, then App Spec.
