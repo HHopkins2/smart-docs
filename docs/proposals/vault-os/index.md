@@ -18,7 +18,7 @@ This is the expanded proposal set for turning Smart Docs into an opinionated, po
 6. [Vault Presets](06-vault-presets.md)
 7. [Action Surface (Web App + MCP)](07-action-surface.md)
 8. [Vault CLI Spec (Bun-first)](08-vault-cli-spec.md)
-8. [Repo Layout Split + Migration](08-repo-layout-and-migration.md)
+9. [Repo Layout Split + Migration](09-repo-layout-and-migration.md)
 
 ## Reading order
 - Start at Product Definition, then App Spec.

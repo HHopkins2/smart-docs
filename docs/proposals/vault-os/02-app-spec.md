@@ -65,6 +65,13 @@ Add vault APIs incrementally:
 - `/api/vault/link`
 - `/api/vault/move`
 
+## Repository topology constraints
+- plugin stays in `plugins/smart-docs/**` (no relocation required for Vault OS rollout)
+- documentation split should distinguish:
+  - `docs/system/**` for product/framework docs
+  - `docs/vault/**` for vault-shaped operational content
+- detailed path plan and migration sequencing live in `09-repo-layout-and-migration.md`
+
 ## npx experience improvements
 - `--preset vault-os` to scaffold folders + templates + standards
 - `--with-index` to bootstrap QMD settings

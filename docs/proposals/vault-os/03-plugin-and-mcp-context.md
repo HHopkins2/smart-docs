@@ -16,6 +16,7 @@ This is configurable today through frontmatter and now supports optional repo-le
 
 ## Key point
 There is no full MCP server contract in Smart Docs yet.
+The plugin remains in its current repository location (`plugins/smart-docs/**`).
 This doc defines how to evolve safely:
 1. keep plugin auto-load for fast wins,
 2. add MCP tool/resource contracts for structured access,
