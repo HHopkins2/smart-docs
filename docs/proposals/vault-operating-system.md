@@ -14,11 +14,13 @@ owner: platform
 
 Smart Docs already has strong primitives: markdown CRUD, frontmatter, real-time sync, and agent auto-load. The next step is to turn it into a **Vault Operating System** for teams and agents that need consistent, durable, and searchable knowledge.
 
-This proposal defines:
-- the concept model (what objects exist),
-- the operational model (how data moves and is maintained),
-- the product model (what users/agents see in UI + APIs + MCP),
-- and a phased implementation plan.
+This proposal defines the core direction and links to the expanded proposal suite:
+- [Vault OS Proposal Suite Index](vault-os/index.md)
+- [Product Definition](vault-os/01-product-definition.md)
+- [App Spec](vault-os/02-app-spec.md)
+- [Claude Plugin + MCP Context Strategy](vault-os/03-plugin-and-mcp-context.md)
+- [Information Model + Metadata Standards](vault-os/04-information-model.md)
+- [Operating Guides + Maintenance](vault-os/05-operating-guides.md)
 
 ---
 
