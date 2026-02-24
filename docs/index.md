@@ -41,3 +41,7 @@ The app launches at `http://localhost:4500` (or next available port).
 
 - [Vault Operating System Proposal](proposals/vault-operating-system.md) - Comprehensive roadmap for PARA/task/workflow/skill driven knowledge operations
 - [Vault OS Proposal Suite](proposals/vault-os/index.md) - Detailed, split specs for product, app, plugin/MCP, metadata, and maintenance
+
+## Dogfood Demo
+
+- [Vault Demo (Dogfood)](vault-demo/index.md) - Practical PARA + typed-object example set with guided walkthrough
