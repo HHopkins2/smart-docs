@@ -21,6 +21,7 @@ This proposal defines the core direction and links to the expanded proposal suit
 - [Claude Plugin + MCP Context Strategy](vault-os/03-plugin-and-mcp-context.md)
 - [Information Model + Metadata Standards](vault-os/04-information-model.md)
 - [Operating Guides + Maintenance](vault-os/05-operating-guides.md)
+- [Vault CLI Spec (Bun-first)](vault-os/08-vault-cli-spec.md)
 
 ---
 

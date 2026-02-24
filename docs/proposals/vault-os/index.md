@@ -17,8 +17,11 @@ This is the expanded proposal set for turning Smart Docs into an opinionated, po
 5. [Operating Guides + Maintenance System](05-operating-guides.md)
 6. [Vault Presets](06-vault-presets.md)
 7. [Action Surface (Web App + MCP)](07-action-surface.md)
+8. [Vault CLI Spec (Bun-first)](08-vault-cli-spec.md)
+8. [Repo Layout Split + Migration](08-repo-layout-and-migration.md)
 
 ## Reading order
 - Start at Product Definition, then App Spec.
 - Use Plugin/MCP + Information Model as implementation contracts.
+- Use Repo Layout Split to plan docs-system vs vault-content migration.
 - Use Operating Guides as rollout and long-term maintenance playbook.
