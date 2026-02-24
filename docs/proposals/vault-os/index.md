@@ -15,6 +15,7 @@ This is the expanded proposal set for turning Smart Docs into an opinionated, po
 3. [Claude Plugin + MCP Context Strategy](03-plugin-and-mcp-context.md)
 4. [Information Model + Metadata Standards](04-information-model.md)
 5. [Operating Guides + Maintenance System](05-operating-guides.md)
+6. [Vault Presets](06-vault-presets.md)
 
 ## Reading order
 - Start at Product Definition, then App Spec.
