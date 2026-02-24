@@ -25,6 +25,11 @@ The port defaults to 4500 or the next available port.
 | PUT | `/docs/content` | Update a file |
 | POST | `/docs/content` | Create a file |
 | DELETE | `/docs/content` | Delete a file |
+| GET (scaffold) | `/vault/search` | Search vault objects |
+| POST (scaffold) | `/vault/validate` | Validate vault metadata/content |
+| GET (scaffold) | `/vault/index-status` | Check index health/freshness |
+| POST (scaffold) | `/vault/move` | Move object with optional link updates |
+| POST (scaffold) | `/vault/link` | Create explicit relation between objects |
 
 ## Response Format
 
@@ -76,3 +81,8 @@ Build tools that:
 
 - [Docs Tree API](docs-tree.md) - List all documentation files
 - [Docs Content API](docs-content.md) - Read, write, and delete files
+- [Vault Search API (Scaffold)](vault-search.md)
+- [Vault Validate API (Scaffold)](vault-validate.md)
+- [Vault Index Status API (Scaffold)](vault-index-status.md)
+- [Vault Move API (Scaffold)](vault-move.md)
+- [Vault Link API (Scaffold)](vault-link.md)
